@@ -1,30 +1,45 @@
-from shared.pdf_reader import PDFReader
-from features.notas_fiscais.parser import NotaFiscalParser
+from features.notas_fiscais.service import NotaFiscalService
 
 
 def main():
-    print("1 - iniciou")
+    service = NotaFiscalService()
 
-    reader = PDFReader()
-    print("2 - criou PDFReader")
+    try:
+        resultado = service.processar_e_salvar(
+            "teste.pdf",
+            "PORTAL ADM - Teste.xlsx"
+        )
 
-    parser = NotaFiscalParser()
-    print("3 - criou parser")
+        print(
+            f"Notas encontradas: "
+            f"{resultado.encontradas}"
+        )
+        print(
+            f"Notas adicionadas: "
+            f"{resultado.adicionadas}"
+        )
+        print(
+            f"Duplicadas ignoradas: "
+            f"{resultado.duplicadas}"
+        )
 
-    pages = reader.read_pages("teste.pdf")
-    print(f"4 - leu PDF: {len(pages)} página(s)")
+    except FileNotFoundError as erro:
+        print(
+            f"Arquivo não encontrado: "
+            f"{erro.filename}"
+        )
 
-    texto = pages[0]
-    print(f"5 - texto extraído: {len(texto)} caracteres")
+    except PermissionError:
+        print(
+            "Não foi possível acessar a planilha. "
+            "Verifique se ela está aberta no Excel."
+        )
 
-    numero = parser.extrair_numero(texto)
-    print(f"6 - número: {numero}")
-
-    fornecedor = parser.extrair_fornecedor(texto)
-    print(f"7 - fornecedor: {fornecedor}")
-
-    cnpj = parser.extrair_cnpj(texto)
-    print(f"8 - CNPJ: {cnpj}")
+    except KeyError:
+        print(
+            'A aba "Conferência" não foi encontrada '
+            "na planilha."
+        )
 
 
 if __name__ == "__main__":
